@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>حمّلها</title>
+  <style>
+    :root {
+      --main-color: #0077b6;
+      --accent-color: #00b4d8;
+      --bg-color: #f1f9ff;
+      --text-color: #0a2c43;
+      --shadow: rgba(0, 132, 255, 0.15);
+      --radius: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Cairo', 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top right, #d9f3ff, #ffffff);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      direction: rtl;
+      color: var(--text-color);
+      flex-direction: column;
+    }
+
+    /* زر التبرع عبر بايبال ككتابة فقط */
+    .donate-btn {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--main-color);
+      text-decoration: none;
+      margin-bottom: 24px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .donate-btn:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      background: #fff;
+      padding: 40px 32px;
+      border-radius: var(--radius);
+      max-width: 520px;
+      width: 100%;
+      box-shadow: 0 12px 28px var(--shadow);
+      text-align: center;
+      animation: fadeIn 0.8s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      color: var(--main-color);
+      font-size: 30px;
+      margin-bottom: 6px;
+      font-weight: 800;
+    }
+
+    .tagline {
+      font-size: 17px;
+      color: #666;
+      margin-bottom: 28px;
+      font-weight: 500;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 15px 20px;
+      border: 2px solid #cceefd;
+      border-radius: var(--radius);
+      font-size: 17px;
+      margin-bottom: 24px;
+      background-color: #f6fcff;
+      transition: 0.3s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent-color);
+      background-color: #eaf8ff;
+      outline: none;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 14px 22px;
+      background: linear-gradient(135deg, var(--accent-color), var(--main-color));
+      color: white;
+      border: none;
+      border-radius: calc(var(--radius) - 4px);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 8px 6px;
+      box-shadow: 0 6px 16px var(--shadow);
+      transition: 0.25s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px) scale(1.03);
+      opacity: 0.95;
+    }
+
+    .status {
+      margin-top: 24px;
+      font-size: 15px;
+      min-height: 22px;
+      font-weight: 500;
+      color: #c00;
+    }
+
+    .loader {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #ccc;
+      border-top-color: var(--main-color);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .footer {
+      margin-top: 40px;
+      font-size: 14px;
+      color: #555;
+      text-align: center;
+    }
+
+    .footer a {
+      color: var(--main-color);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 24px; }
+      .btn {
+        width: 100%;
+        margin: 10px 0;
+      }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- زر التبرع عبر بايبال ككتابة فقط -->
+  <a href="https://paypal.me/nacirazzouzi" target="_blank" class="donate-btn">
+    تبرع عبر بايبال كي نستمر
+  </a>
+
+  <div class="container">
+    <h1>حمّلها</h1>
+    <p class="tagline">  من يوتيوب ولا إنستـا؟سهلة،  حمّلها   </p>
+    <input type="text" id="url" placeholder="ضع رابط الفيديو هنا...">
+    <div>
+      <button class="btn" onclick="downloadVideo()">تحميل فيديو</button>
+      <button class="btn" onclick="downloadAudio()">تحميل صوت</button>
+    </div>
+    <div id="status" class="status">
+      <span id="statusText"></span>
+      <span id="loader" class="loader" style="display: none;"></span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>لأي استفسارات أو مشاكل، <a href="https://www.instagram.com/jl.0hu/" target="_blank">تواصل معي</a></p>
+  </div>
+
+  <script>
+    async function sendRequest(audio_only) {
+      const url = document.getElementById("url").value.trim();
+      const statusText = document.getElementById("statusText");
+      const loader = document.getElementById("loader");
+
+      if (!url) {
+        statusText.textContent = "الرجاء إدخال رابط";
+        loader.style.display = "none";
+        return;
+      }
+
+      statusText.textContent = "جاري التحميل...";
+      loader.style.display = "inline-block";
+
+      try {
+        const response = await fetch("/get_direct_url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url, audio_only }),
+        });
+
+        const data = await response.json();
+        loader.style.display = "none";
+
+        if (data.url) {
+          window.open(data.url, "_blank");
+          statusText.textContent = "تم التحميل بنجاح";
+        } else {
+          statusText.textContent = data.error || "حدث خطأ أثناء المعالجة.";
+        }
+      } catch (e) {
+        loader.style.display = "none";
+        statusText.textContent = "تعذر الاتصال بالخادم.";
+      }
+    }
+
+    function downloadVideo() {
+      sendRequest(false);
+    }
+
+    function downloadAudio() {
+      sendRequest(true);
+    }
+  </script>
+</body>
+</html>
