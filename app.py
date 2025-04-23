@@ -22,8 +22,9 @@ def download_generic(url, audio_only=False):
         'format': 'mp4',
         'noplaylist': True,
         'outtmpl': video_path,
+        'cookies': 'cookies.json',  # إضافة ملف الكوكيز هنا
         'no_check_certificate': True,  # لتجاوز مشاكل الشهادات
-        'geo_bypass': True,  # لتجاوز القيود الجغرافية إذا كانت موجودة
+        'geo_bypass': True,  # لتجاوز القيود الجغرافية
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -54,6 +55,7 @@ def handle_youtube(url, audio_only=False):
         'quiet': True,
         'format': 'bestvideo[height<=1080]',
         'outtmpl': video_path,
+        'cookies': 'cookies.json',  # إضافة ملف الكوكيز هنا
         'no_check_certificate': True,  # لتجاوز مشاكل الشهادات
         'geo_bypass': True,  # لتجاوز القيود الجغرافية
     }
@@ -61,6 +63,7 @@ def handle_youtube(url, audio_only=False):
         'quiet': True,
         'format': 'bestaudio',
         'outtmpl': audio_path,
+        'cookies': 'cookies.json',  # إضافة ملف الكوكيز هنا
         'no_check_certificate': True,  # لتجاوز مشاكل الشهادات
         'geo_bypass': True,  # لتجاوز القيود الجغرافية
     }
