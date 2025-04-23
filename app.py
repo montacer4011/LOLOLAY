@@ -12,10 +12,6 @@ os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 def sanitize_filename(filename):
     return filename.replace("..", "").replace("/", "").replace("\\", "")
 
-def extract_audio(video_path, output_path):
-    os.system(f'ffmpeg -y -i "{video_path}" -vn -acodec libmp3lame -q:a 2 "{output_path}"')
-    os.remove(video_path)
-
 def download_generic(url, audio_only=False):
     file_id = str(uuid.uuid4())
     video_path = os.path.join(DOWNLOAD_DIR, f"{file_id}.mp4")
@@ -26,6 +22,8 @@ def download_generic(url, audio_only=False):
         'format': 'mp4',
         'noplaylist': True,
         'outtmpl': video_path,
+        'no_check_certificate': True,  # لتجاوز مشاكل الشهادات
+        'geo_bypass': True,  # لتجاوز القيود الجغرافية إذا كانت موجودة
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -39,6 +37,10 @@ def download_generic(url, audio_only=False):
     check_and_clean_downloads()  # التأكد من تنظيف الملفات بعد التحميل
     return video_path
 
+def extract_audio(video_path, output_path):
+    os.system(f'ffmpeg -y -i "{video_path}" -vn -acodec libmp3lame -q:a 2 "{output_path}"')
+    os.remove(video_path)
+
 def handle_youtube(url, audio_only=False):
     if audio_only:
         return download_generic(url, audio_only=True)
@@ -51,12 +53,16 @@ def handle_youtube(url, audio_only=False):
     video_opts = {
         'quiet': True,
         'format': 'bestvideo[height<=1080]',
-        'outtmpl': video_path
+        'outtmpl': video_path,
+        'no_check_certificate': True,  # لتجاوز مشاكل الشهادات
+        'geo_bypass': True,  # لتجاوز القيود الجغرافية
     }
     audio_opts = {
         'quiet': True,
         'format': 'bestaudio',
-        'outtmpl': audio_path
+        'outtmpl': audio_path,
+        'no_check_certificate': True,  # لتجاوز مشاكل الشهادات
+        'geo_bypass': True,  # لتجاوز القيود الجغرافية
     }
 
     with yt_dlp.YoutubeDL(video_opts) as ydl:
@@ -116,13 +122,13 @@ def get_direct_url():
             return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=1", "type": "download"})
         elif "instagram.com" in url:
             path = handle_instagram(url, audio_only)
-            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=1", "type": "download"})  # التغيير هنا
+            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=1", "type": "download"})
         elif "facebook.com" in url:
             path = handle_facebook(url, audio_only)
-            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=1", "type": "download"})  # التغيير هنا
+            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=1", "type": "download"})
         elif "twitter.com" in url or "x.com" in url:
             path = handle_twitter(url, audio_only)
-            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=1", "type": "download"})  # التغيير هنا
+            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=1", "type": "download"})
         else:
             return jsonify({"error": "رابط غير مدعوم"}), 400
 
