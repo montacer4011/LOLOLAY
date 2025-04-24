@@ -25,6 +25,9 @@ def download_generic(url, audio_only=False):
         'cookies': 'cookies.json',
         'no_check_certificate': True,
         'geo_bypass': True,
+        'http_headers': {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+        }
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -39,7 +42,7 @@ def download_generic(url, audio_only=False):
     return video_path
 
 def extract_audio(video_path, output_path):
-    os.system(f'ffmpeg -y -i "{video_path}" -vn -acodec libmp3lame -q:a 2 "{output_path}"')
+    os.system(f'ffmpeg -y -i "{video_path}" -vn -acodec libmp3lame -q:a 2 "{output_path}")
     os.remove(video_path)
 
 def handle_youtube(url, audio_only=False):
@@ -58,6 +61,9 @@ def handle_youtube(url, audio_only=False):
         'cookies': 'cookies.json',
         'no_check_certificate': True,
         'geo_bypass': True,
+        'http_headers': {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+        }
     }
     audio_opts = {
         'quiet': True,
@@ -66,6 +72,9 @@ def handle_youtube(url, audio_only=False):
         'cookies': 'cookies.json',
         'no_check_certificate': True,
         'geo_bypass': True,
+        'http_headers': {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+        }
     }
 
     with yt_dlp.YoutubeDL(video_opts) as ydl:
@@ -73,7 +82,7 @@ def handle_youtube(url, audio_only=False):
     with yt_dlp.YoutubeDL(audio_opts) as ydl:
         ydl.download([url])
 
-    os.system(f'ffmpeg -y -i "{video_path}" -i "{audio_path}" -c:v copy -c:a aac "{final_output}"')
+    os.system(f'ffmpeg -y -i "{video_path}" -i "{audio_path}" -c:v copy -c:a aac "{final_output}")
     os.remove(video_path)
     os.remove(audio_path)
     check_and_clean_downloads()
@@ -153,7 +162,7 @@ def download_file():
 
         as_attachment = request.args.get("download", "1") == "1"
         return send_file(file_path, as_attachment=as_attachment)
-    
+
     return "File not found", 404
 
 @app.route('/googlee746176d37c57674.html')
@@ -162,4 +171,3 @@ def google_verify():
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
-
