@@ -12,6 +12,10 @@ os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 def sanitize_filename(filename):
     return filename.replace("..", "").replace("/", "").replace("\\", "")
 
+def extract_audio(video_path, output_path):
+    os.system(f'ffmpeg -y -i "{video_path}" -vn -acodec libmp3lame -q:a 2 "{output_path}"')
+    os.remove(video_path)
+
 def download_generic(url, audio_only=False):
     file_id = str(uuid.uuid4())
     video_path = os.path.join(DOWNLOAD_DIR, f"{file_id}.mp4")
@@ -22,12 +26,6 @@ def download_generic(url, audio_only=False):
         'format': 'mp4',
         'noplaylist': True,
         'outtmpl': video_path,
-        'cookies': 'cookies.json',
-        'no_check_certificate': True,
-        'geo_bypass': True,
-        'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
-        }
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -35,15 +33,11 @@ def download_generic(url, audio_only=False):
 
     if audio_only:
         extract_audio(video_path, audio_path)
-        check_and_clean_downloads()
+        check_and_clean_downloads()  # التأكد من تنظيف الملفات بعد التحميل
         return audio_path
 
-    check_and_clean_downloads()
+    check_and_clean_downloads()  # التأكد من تنظيف الملفات بعد التحميل
     return video_path
-
-def extract_audio(video_path, output_path):
-    os.system(f'ffmpeg -y -i "{video_path}" -vn -acodec libmp3lame -q:a 2 "{output_path}")
-    os.remove(video_path)
 
 def handle_youtube(url, audio_only=False):
     if audio_only:
@@ -57,24 +51,12 @@ def handle_youtube(url, audio_only=False):
     video_opts = {
         'quiet': True,
         'format': 'bestvideo[height<=1080]',
-        'outtmpl': video_path,
-        'cookies': 'cookies.json',
-        'no_check_certificate': True,
-        'geo_bypass': True,
-        'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
-        }
+        'outtmpl': video_path
     }
     audio_opts = {
         'quiet': True,
         'format': 'bestaudio',
-        'outtmpl': audio_path,
-        'cookies': 'cookies.json',
-        'no_check_certificate': True,
-        'geo_bypass': True,
-        'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
-        }
+        'outtmpl': audio_path
     }
 
     with yt_dlp.YoutubeDL(video_opts) as ydl:
@@ -82,14 +64,16 @@ def handle_youtube(url, audio_only=False):
     with yt_dlp.YoutubeDL(audio_opts) as ydl:
         ydl.download([url])
 
-    os.system(f'ffmpeg -y -i "{video_path}" -i "{audio_path}" -c:v copy -c:a aac "{final_output}")
+    os.system(f'ffmpeg -y -i "{video_path}" -i "{audio_path}" -c:v copy -c:a aac "{final_output}"')
     os.remove(video_path)
     os.remove(audio_path)
-    check_and_clean_downloads()
+    check_and_clean_downloads()  # التأكد من تنظيف الملفات بعد تحميل الفيديو والصوت
     return final_output
 
 def check_and_clean_downloads():
+    # فحص عدد الملفات في المجلد
     if len(os.listdir(DOWNLOAD_DIR)) >= 5:
+        # التأكد من الحذف بعد 5 ثوانٍ
         Timer(5.0, clean_downloads).start()
 
 def clean_downloads():
@@ -132,13 +116,13 @@ def get_direct_url():
             return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=1", "type": "download"})
         elif "instagram.com" in url:
             path = handle_instagram(url, audio_only)
-            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=1", "type": "download"})
+            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=0", "type": "open"})
         elif "facebook.com" in url:
             path = handle_facebook(url, audio_only)
-            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=1", "type": "download"})
+            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=0", "type": "open"})
         elif "twitter.com" in url or "x.com" in url:
             path = handle_twitter(url, audio_only)
-            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=1", "type": "download"})
+            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=0", "type": "open"})
         else:
             return jsonify({"error": "رابط غير مدعوم"}), 400
 
@@ -162,12 +146,8 @@ def download_file():
 
         as_attachment = request.args.get("download", "1") == "1"
         return send_file(file_path, as_attachment=as_attachment)
-
+    
     return "File not found", 404
-
-@app.route('/googlee746176d37c57674.html')
-def google_verify():
-    return send_file('googlee746176d37c57674.html')
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
