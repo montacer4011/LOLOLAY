@@ -22,9 +22,9 @@ def download_generic(url, audio_only=False):
         'format': 'mp4',
         'noplaylist': True,
         'outtmpl': video_path,
-        'cookies': 'cookies.json',  # إضافة ملف الكوكيز هنا
-        'no_check_certificate': True,  # لتجاوز مشاكل الشهادات
-        'geo_bypass': True,  # لتجاوز القيود الجغرافية
+        'cookies': 'cookies.json',
+        'no_check_certificate': True,
+        'geo_bypass': True,
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -32,10 +32,10 @@ def download_generic(url, audio_only=False):
 
     if audio_only:
         extract_audio(video_path, audio_path)
-        check_and_clean_downloads()  # التأكد من تنظيف الملفات بعد التحميل
+        check_and_clean_downloads()
         return audio_path
 
-    check_and_clean_downloads()  # التأكد من تنظيف الملفات بعد التحميل
+    check_and_clean_downloads()
     return video_path
 
 def extract_audio(video_path, output_path):
@@ -55,17 +55,17 @@ def handle_youtube(url, audio_only=False):
         'quiet': True,
         'format': 'bestvideo[height<=1080]',
         'outtmpl': video_path,
-        'cookies': 'cookies.json',  # إضافة ملف الكوكيز هنا
-        'no_check_certificate': True,  # لتجاوز مشاكل الشهادات
-        'geo_bypass': True,  # لتجاوز القيود الجغرافية
+        'cookies': 'cookies.json',
+        'no_check_certificate': True,
+        'geo_bypass': True,
     }
     audio_opts = {
         'quiet': True,
         'format': 'bestaudio',
         'outtmpl': audio_path,
-        'cookies': 'cookies.json',  # إضافة ملف الكوكيز هنا
-        'no_check_certificate': True,  # لتجاوز مشاكل الشهادات
-        'geo_bypass': True,  # لتجاوز القيود الجغرافية
+        'cookies': 'cookies.json',
+        'no_check_certificate': True,
+        'geo_bypass': True,
     }
 
     with yt_dlp.YoutubeDL(video_opts) as ydl:
@@ -76,13 +76,11 @@ def handle_youtube(url, audio_only=False):
     os.system(f'ffmpeg -y -i "{video_path}" -i "{audio_path}" -c:v copy -c:a aac "{final_output}"')
     os.remove(video_path)
     os.remove(audio_path)
-    check_and_clean_downloads()  # التأكد من تنظيف الملفات بعد تحميل الفيديو والصوت
+    check_and_clean_downloads()
     return final_output
 
 def check_and_clean_downloads():
-    # فحص عدد الملفات في المجلد
     if len(os.listdir(DOWNLOAD_DIR)) >= 5:
-        # التأكد من الحذف بعد 5 ثوانٍ
         Timer(5.0, clean_downloads).start()
 
 def clean_downloads():
@@ -158,5 +156,10 @@ def download_file():
     
     return "File not found", 404
 
+@app.route('/googlee746176d37c57674.html')
+def google_verify():
+    return send_file('googlee746176d37c57674.html')
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
+
