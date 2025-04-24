@@ -33,10 +33,10 @@ def download_generic(url, audio_only=False):
 
     if audio_only:
         extract_audio(video_path, audio_path)
-        check_and_clean_downloads()  # التأكد من تنظيف الملفات بعد التحميل
+        check_and_clean_downloads()
         return audio_path
 
-    check_and_clean_downloads()  # التأكد من تنظيف الملفات بعد التحميل
+    check_and_clean_downloads()
     return video_path
 
 def handle_youtube(url, audio_only=False):
@@ -48,15 +48,20 @@ def handle_youtube(url, audio_only=False):
     audio_path = os.path.join(DOWNLOAD_DIR, f"{file_id}_audio.m4a")
     final_output = os.path.join(DOWNLOAD_DIR, f"{file_id}_final.mp4")
 
+    # مسار ملف الكوكيز
+    cookies_file = os.path.join(os.path.dirname(__file__), 'cookies.txt')
+
     video_opts = {
         'quiet': True,
         'format': 'bestvideo[height<=1080]',
-        'outtmpl': video_path
+        'outtmpl': video_path,
+        'cookiefile': cookies_file
     }
     audio_opts = {
         'quiet': True,
         'format': 'bestaudio',
-        'outtmpl': audio_path
+        'outtmpl': audio_path,
+        'cookiefile': cookies_file
     }
 
     with yt_dlp.YoutubeDL(video_opts) as ydl:
@@ -67,13 +72,11 @@ def handle_youtube(url, audio_only=False):
     os.system(f'ffmpeg -y -i "{video_path}" -i "{audio_path}" -c:v copy -c:a aac "{final_output}"')
     os.remove(video_path)
     os.remove(audio_path)
-    check_and_clean_downloads()  # التأكد من تنظيف الملفات بعد تحميل الفيديو والصوت
+    check_and_clean_downloads()
     return final_output
 
 def check_and_clean_downloads():
-    # فحص عدد الملفات في المجلد
     if len(os.listdir(DOWNLOAD_DIR)) >= 5:
-        # التأكد من الحذف بعد 5 ثوانٍ
         Timer(5.0, clean_downloads).start()
 
 def clean_downloads():
