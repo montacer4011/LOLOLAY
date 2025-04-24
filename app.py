@@ -116,13 +116,13 @@ def get_direct_url():
             return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=1", "type": "download"})
         elif "instagram.com" in url:
             path = handle_instagram(url, audio_only)
-            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=0", "type": "open"})
+            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=1", "type": "download"})
         elif "facebook.com" in url:
             path = handle_facebook(url, audio_only)
-            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=0", "type": "open"})
+            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=1", "type": "download"})
         elif "twitter.com" in url or "x.com" in url:
             path = handle_twitter(url, audio_only)
-            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=0", "type": "open"})
+            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=1", "type": "download"})
         else:
             return jsonify({"error": "رابط غير مدعوم"}), 400
 
