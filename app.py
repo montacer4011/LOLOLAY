@@ -48,20 +48,15 @@ def handle_youtube(url, audio_only=False):
     audio_path = os.path.join(DOWNLOAD_DIR, f"{file_id}_audio.m4a")
     final_output = os.path.join(DOWNLOAD_DIR, f"{file_id}_final.mp4")
 
-    # مسار ملف الكوكيز
-    cookies_file = os.path.join(os.path.dirname(__file__), 'cookies.txt')
-
     video_opts = {
         'quiet': True,
         'format': 'bestvideo[height<=1080]',
-        'outtmpl': video_path,
-        'cookiefile': cookies_file
+        'outtmpl': video_path
     }
     audio_opts = {
         'quiet': True,
         'format': 'bestaudio',
-        'outtmpl': audio_path,
-        'cookiefile': cookies_file
+        'outtmpl': audio_path
     }
 
     with yt_dlp.YoutubeDL(video_opts) as ydl:
@@ -113,21 +108,18 @@ def get_direct_url():
     try:
         if "youtube.com" in url or "youtu.be" in url:
             path = handle_youtube(url, audio_only)
-            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=1", "type": "download"})
         elif "tiktok.com" in url:
             path = handle_tiktok(url, audio_only)
-            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=1", "type": "download"})
         elif "instagram.com" in url:
             path = handle_instagram(url, audio_only)
-            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=1", "type": "download"})
         elif "facebook.com" in url:
             path = handle_facebook(url, audio_only)
-            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=1", "type": "download"})
         elif "twitter.com" in url or "x.com" in url:
             path = handle_twitter(url, audio_only)
-            return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=1", "type": "download"})
         else:
             return jsonify({"error": "رابط غير مدعوم"}), 400
+
+        return jsonify({"url": f"/download_file?path={os.path.basename(path)}&download=1", "type": "download"})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -149,8 +141,9 @@ def download_file():
 
         as_attachment = request.args.get("download", "1") == "1"
         return send_file(file_path, as_attachment=as_attachment)
-    
+
     return "File not found", 404
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
+
